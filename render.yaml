@@ -1,0 +1,53 @@
+services:
+  # 1) Web Service: FastAPI API + Website pages
+  - type: web
+    name: market-lab-web
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    envVars:
+      - key: ENV
+        value: production
+      - key: MARKETLAB_API_KEY
+        generateValue: true
+      # Render will inject PORT automatically
+      - key: DATABASE_URL
+        fromDatabase:
+          name: market-lab-db
+          property: connectionString
+
+  # 2) Cron Job: runs daily to pull new data + upsert into DB (optional)
+  - type: cron
+    name: market-lab-daily-update
+    env: python
+    plan: free
+    schedule: "40 12 * * *" # 12:40 UTC = 18:10 IST
+    buildCommand: pip install -r requirements.txt
+    startCommand: python jobs/daily_update.py
+    envVars:
+      - key: ENV
+        value: production
+      - key: MARKETLAB_API_KEY
+        fromService:
+          name: market-lab-web
+          type: web
+          envVarKey: MARKETLAB_API_KEY
+      - key: MARKETLAB_URL
+        fromService:
+          name: market-lab-web
+          type: web
+          property: host
+      - key: DATABASE_URL
+        fromDatabase:
+          name: market-lab-db
+          property: connectionString
+      - key: TICKERS
+        value: "AAPL,MSFT,TSLA"
+      - key: PERIOD
+        value: "30d"
+
+databases:
+  - name: market-lab-db
+    plan: free

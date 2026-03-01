@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }} - {{ detail.symbol }}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dashboard-bg">
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="brand">{{ app_name }}</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/ticker/{{ detail.symbol }}" class="active">{{ detail.symbol }}</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-wide">
+        <header class="ticker-header">
+            <div class="ticker-title-group">
+                <a href="/dashboard" class="back-link">←</a>
+                <div>
+                    <h1>{{ detail.symbol }} <span class="ticker-name">{{ detail.name or '' }}</span></h1>
+                    <p class="subtitle">Latest data as of {{ detail.date }}</p>
+                </div>
+            </div>
+
+            <div class="stat-main">
+                <div class="stat-label">Final Score</div>
+                <div
+                    class="stat-val {% if detail.final_score > 70 %}text-success{% elif detail.final_score < 40 %}text-danger{% endif %}">
+                    {{ "%.1f"|format(detail.final_score|default(0)) }}
+                </div>
+                <div class="trend-badge badge badge-{{ detail.trend_state|lower }}">{{ detail.trend_state }}</div>
+            </div>
+        </header>
+
+        <main>
+            <!-- Alerts Row -->
+            {% if detail.alerts %}
+            <div class="ticker-alerts mb-4">
+                <h3>Active Alerts</h3>
+                <div class="alert-container">
+                    {% for alert in detail.alerts %}
+                    <div class="alert-card alert-bg-{{ alert|lower }}">{{ alert }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="grid-layout">
+                <!-- Left Column -->
+                <div class="col-main">
+                    <section class="glass card">
+                        <h2>180-Day Price Target</h2>
+                        <div class="chart-container">
+                            <img src="/chart/{{ detail.symbol }}.png" alt="{{ detail.symbol }} chart" class="chart-img"
+                                onerror="this.src=''; this.alt='Chart generation error or no data';">
+                        </div>
+                    </section>
+
+                    <section class="glass card mt-4">
+                        <h2>Latest OHLCV</h2>
+                        <div class="stats-grid">
+                            <div class="stat-box"><span>Open</span><strong>${{ "%.2f"|format(detail.open|default(0))
+                                    }}</strong></div>
+                            <div class="stat-box text-success"><span>High</span><strong>${{
+                                    "%.2f"|format(detail.high|default(0)) }}</strong></div>
+                            <div class="stat-box text-danger"><span>Low</span><strong>${{
+                                    "%.2f"|format(detail.low|default(0)) }}</strong></div>
+                            <div class="stat-box"><span>Close</span><strong>${{ "%.2f"|format(detail.close|default(0))
+                                    }}</strong></div>
+                            <div class="stat-box"><span>Volume</span><strong>{{ detail.volume|int }}</strong></div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-side">
+                    <section class="glass card">
+                        <h2>Technical Indicators</h2>
+                        <ul class="indicator-list">
+                            <li><span>RSI (14)</span> <strong
+                                    class="{% if detail.rsi_14 > 70 %}text-danger{% elif detail.rsi_14 < 30 %}text-success{% endif %}">{{
+                                    "%.1f"|format(detail.rsi_14|default(0)) }}</strong></li>
+                            <li><span>SMA 20</span> <strong>${{ "%.2f"|format(detail.sma_20|default(0)) }}</strong></li>
+                            <li><span>SMA 50</span> <strong>${{ "%.2f"|format(detail.sma_50|default(0)) }}</strong></li>
+                            <li><span>SMA 200</span> <strong>${{ "%.2f"|format(detail.sma_200|default(0)) }}</strong>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Market Lab Web. All rights reserved.</p>
+        </footer>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

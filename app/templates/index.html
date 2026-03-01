@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }} - Home</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="landing-page">
+    <div class="container container-landing">
+        <header class="hero">
+            <h1 class="gradient-text">{{ app_name }}</h1>
+            <p class="subtitle">Advanced Quantitative Market Analytics</p>
+            <div class="mode-badge {% if 'Demo' in mode %}demo-mode{% else %}prod-mode{% endif %}">
+                System Mode: {{ mode }}
+            </div>
+        </header>
+
+        <main>
+            <section class="links-section">
+                <div class="links-grid links-grid-landing">
+                    <a href="/dashboard" class="link-card highlight glass">
+                        <div class="card-icon">📈</div>
+                        <h3>Market Dashboard</h3>
+                        <p>Real-time leaderboard, strategy scores, and trend analysis.</p>
+                    </a>
+                    <a href="/docs" class="link-card glass">
+                        <div class="card-icon">⚙️</div>
+                        <h3>Developer API</h3>
+                        <p>RESTful JSON endpoints powered by FastAPI.</p>
+                    </a>
+                    <a href="/healthz" class="link-card glass">
+                        <div class="card-icon">🩺</div>
+                        <h3>System Health</h3>
+                        <p>Check the live status of the deployment.</p>
+                    </a>
+                </div>
+            </section>
+
+            <section class="info-card glass mt-4">
+                <h2>About the Scoring Model</h2>
+                <p>Market Lab uses configurable weights to assess each asset:</p>
+                <div class="score-breakdown">
+                    <div class="score-item"><span class="label">Momentum</span> (Ret 20d & 60d)</div>
+                    <div class="score-item"><span class="label">Trend</span> (SMA 50 vs 200)</div>
+                    <div class="score-item"><span class="label">Risk</span> (Vol 20d + Drawdown)</div>
+                    <div class="score-item"><span class="label">Liquidity</span> (Vol Z-Score)</div>
+                </div>
+                <p class="disclaimer"><em>Note: This is an educational tool. There are zero predictive claims made by
+                        this platform.</em></p>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Market Lab Web. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+
+</html>

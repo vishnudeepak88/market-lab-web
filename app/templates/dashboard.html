@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }} - Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dashboard-bg">
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="brand">{{ app_name }}</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard" class="active">Dashboard</a>
+                <a href="/docs">API Docs</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-wide">
+        <header class="dash-header">
+            <div>
+                <h1>Market Leaderboard</h1>
+                <p class="subtitle">Top assets ranked by the quantitative scoring model.</p>
+            </div>
+
+            <div class="dash-controls">
+                <div class="search-box">
+                    <input type="text" id="ticker-search" placeholder="Search symbol...">
+                    <button id="search-btn">Go</button>
+                    <!-- For simplicity, redirecting search to /ticker/{symbol} -->
+                </div>
+
+                <div class="filters">
+                    <select id="trend-filter">
+                        <option value="ALL">All Trends</option>
+                        <option value="UP">Uptrend ↑</option>
+                        <option value="DOWN">Downtrend ↓</option>
+                        <option value="SIDEWAYS">Sideways ↔</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="table-container glass">
+                <table id="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Symbol</th>
+                            <th>Score</th>
+                            <th>Trend</th>
+                            <th>20d Ret</th>
+                            <th>RSI(14)</th>
+                            <th>Vol(20d)</th>
+                            <th>Alerts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in leaderboard %}
+                        <tr class="clickable-row" data-href="/ticker/{{ row.ticker }}">
+                            <td class="rank-col">{{ loop.index }}</td>
+                            <td class="font-bold text-primary">{{ row.ticker }}</td>
+                            <td>
+                                <div class="score-bar-container">
+                                    <span class="score-val">{{ "%.1f"|format(row.final_score) }}</span>
+                                    <div class="score-bar-bg">
+                                        <div class="score-bar-fill" style="width:{{ row.final_score }}%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-{{ row.trend_state|lower }}">{{ row.trend_state }}</span>
+                            </td>
+                            <td
+                                class="{% if row.ret_20d > 0 %}text-success{% elif row.ret_20d < 0 %}text-danger{% endif %}">
+                                {% if row.ret_20d > 0 %}+{% endif %}{{ "%.2f"|format(row.ret_20d * 100) }}%
+                            </td>
+                            <td>{{ "%.1f"|format(row.rsi_14) }}</td>
+                            <td class="text-muted">{{ "%.2f"|format(row.vol_20d * 100) }}%</td>
+                            <td class="alerts-cell">
+                                {% if row.alerts %}
+                                {% for alert in row.alerts %}
+                                <span class="alert-pill alert-{{ alert|lower }}">{{ alert }}</span>
+                                {% endfor %}
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">No data available. Try importing CSV data.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Market Lab Web. All rights reserved.</p>
+        </footer>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

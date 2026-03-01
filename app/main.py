@@ -1,20 +1,22 @@
 from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import api, pages
+from fastapi.staticfiles import StaticFiles
+
 from app.config import settings
 from app.db import Base, engine
+from app.routers import api, pages
 
-# Create tables in actual db if running with postgres
+# Create tables if running with a real DB
 if engine is not None:
     Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=settings.app_name,
     description="Advanced Quantitative Market Analytics API",
-    version="2.0.0"
+    version="2.0.0",
 )
 
+# If you truly want no CORS, keep allow_origins empty
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[],

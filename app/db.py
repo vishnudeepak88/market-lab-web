@@ -1,23 +1,24 @@
+from typing import Generator, Optional
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
+
 from app.config import settings
 
 Base = declarative_base()
 
-engine = None
-SessionLocal = None
+engine = create_engine(settings.database_url) if settings.database_url else None
+SessionLocal = (
+    sessionmaker(autocommit=False, autoflush=False, bind=engine) if engine else None
+)
 
-if settings.database_url:
-    # Use real DB
-    engine = create_engine(settings.database_url)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-def get_db():
-    if SessionLocal:
-        db = SessionLocal()
-        try:
-            yield db
-        finally:
-            db.close()
-    else:
+def get_db() -> Generator[Optional[Session], None, None]:
+    if SessionLocal is None:
         yield None
+        return
+
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

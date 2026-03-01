@@ -4,106 +4,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ app_name }} - {{ detail.symbol }}</title>
+    <title>Market Lab - AAPL</title>
     <link rel="stylesheet" href="/static/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="dashboard-bg">
-    <nav class="navbar">
+<body>
+    <header class="navbar">
         <div class="nav-container">
-            <a href="/" class="brand">{{ app_name }}</a>
+            <div class="brand">Market Lab</div>
             <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/dashboard">Dashboard</a>
-                <a href="/ticker/{{ detail.symbol }}" class="active">{{ detail.symbol }}</a>
+                <a href="/">Dashboard</a>
+                <a href="#">Docs</a>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <div class="container container-wide">
-        <header class="ticker-header">
+    <main class="container">
+        <!-- Header -->
+        <div class="ticker-header">
             <div class="ticker-title-group">
-                <a href="/dashboard" class="back-link">←</a>
+                <a href="/" class="back-link">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </a>
                 <div>
-                    <h1>{{ detail.symbol }} <span class="ticker-name">{{ detail.name or '' }}</span></h1>
-                    <p class="subtitle">Latest data as of {{ detail.date }}</p>
+                    <h1>AAPL</h1>
+                    <div class="ticker-name">Apple Inc.</div>
                 </div>
             </div>
-
-            <div class="stat-main">
-                <div class="stat-label">Final Score</div>
-                <div
-                    class="stat-val {% if detail.final_score > 70 %}text-success{% elif detail.final_score < 40 %}text-danger{% endif %}">
-                    {{ "%.1f"|format(detail.final_score|default(0)) }}
-                </div>
-                <div class="trend-badge badge badge-{{ detail.trend_state|lower }}">{{ detail.trend_state }}</div>
+            <div class="ticker-price-group">
+                <div class="price-val">$152.40</div>
+                <span class="badge badge-up badge-large">UP</span>
             </div>
-        </header>
+        </div>
 
-        <main>
-            <!-- Alerts Row -->
-            {% if detail.alerts %}
-            <div class="ticker-alerts mb-4">
-                <h3>Active Alerts</h3>
-                <div class="alert-container">
-                    {% for alert in detail.alerts %}
-                    <div class="alert-card alert-bg-{{ alert|lower }}">{{ alert }}</div>
-                    {% endfor %}
-                </div>
+        <!-- Chart Panel -->
+        <div class="card mb-4 panel-chart">
+            <h2>180-Day Price Action</h2>
+            <div class="chart-wrapper">
+                <!-- SVG Placeholder -->
+                <svg class="placeholder-chart" width="100%" height="200" preserveAspectRatio="none"
+                    viewBox="0 0 1000 200">
+                    <polyline fill="none" class="chart-line"
+                        points="0,150 100,140 200,160 300,120 400,130 500,90 600,110 700,70 800,85 900,40 1000,50" />
+                    <polyline fill="url(#gradient)" class="chart-area"
+                        points="0,200 0,150 100,140 200,160 300,120 400,130 500,90 600,110 700,70 800,85 900,40 1000,50 1000,200" />
+                    <defs>
+                        <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
+                            <stop offset="0%" stop-color="#FF6B35" stop-opacity="0.3" />
+                            <stop offset="100%" stop-color="#FF6B35" stop-opacity="0.0" />
+                        </linearGradient>
+                    </defs>
+                </svg>
             </div>
-            {% endif %}
+        </div>
 
-            <div class="grid-layout">
-                <!-- Left Column -->
-                <div class="col-main">
-                    <section class="glass card">
-                        <h2>180-Day Price Target</h2>
-                        <div class="chart-container">
-                            <img src="/chart/{{ detail.symbol }}.png" alt="{{ detail.symbol }} chart" class="chart-img"
-                                onerror="this.src=''; this.alt='Chart generation error or no data';">
-                        </div>
-                    </section>
+        <!-- 4 Stat Cards Grid -->
+        <div class="grid-4">
+            <div class="card stat-card">
+                <h3>Trend</h3>
+                <div class="stat-row"><span>SMA 20</span> <strong>148.20</strong></div>
+                <div class="stat-row"><span>SMA 50</span> <strong>142.10</strong></div>
+                <div class="stat-row"><span>SMA 200</span> <strong>135.50</strong></div>
+                <div class="stat-footer text-success">State: UP</div>
+            </div>
 
-                    <section class="glass card mt-4">
-                        <h2>Latest OHLCV</h2>
-                        <div class="stats-grid">
-                            <div class="stat-box"><span>Open</span><strong>${{ "%.2f"|format(detail.open|default(0))
-                                    }}</strong></div>
-                            <div class="stat-box text-success"><span>High</span><strong>${{
-                                    "%.2f"|format(detail.high|default(0)) }}</strong></div>
-                            <div class="stat-box text-danger"><span>Low</span><strong>${{
-                                    "%.2f"|format(detail.low|default(0)) }}</strong></div>
-                            <div class="stat-box"><span>Close</span><strong>${{ "%.2f"|format(detail.close|default(0))
-                                    }}</strong></div>
-                            <div class="stat-box"><span>Volume</span><strong>{{ detail.volume|int }}</strong></div>
-                        </div>
-                    </section>
-                </div>
+            <div class="card stat-card">
+                <h3>Momentum</h3>
+                <div class="stat-row"><span>20D Return</span> <strong class="text-success">+4.20%</strong></div>
+                <div class="stat-row"><span>60D Return</span> <strong class="text-success">+12.4%</strong></div>
+                <div class="stat-row"><span>RSI(14)</span> <strong>54.2</strong></div>
+                <div class="stat-footer text-muted">Neutral Momentum</div>
+            </div>
 
-                <!-- Right Column -->
-                <div class="col-side">
-                    <section class="glass card">
-                        <h2>Technical Indicators</h2>
-                        <ul class="indicator-list">
-                            <li><span>RSI (14)</span> <strong
-                                    class="{% if detail.rsi_14 > 70 %}text-danger{% elif detail.rsi_14 < 30 %}text-success{% endif %}">{{
-                                    "%.1f"|format(detail.rsi_14|default(0)) }}</strong></li>
-                            <li><span>SMA 20</span> <strong>${{ "%.2f"|format(detail.sma_20|default(0)) }}</strong></li>
-                            <li><span>SMA 50</span> <strong>${{ "%.2f"|format(detail.sma_50|default(0)) }}</strong></li>
-                            <li><span>SMA 200</span> <strong>${{ "%.2f"|format(detail.sma_200|default(0)) }}</strong>
-                            </li>
-                        </ul>
-                    </section>
+            <div class="card stat-card">
+                <h3>Risk</h3>
+                <div class="stat-row"><span>Volatility 20D</span> <strong>1.25%</strong></div>
+                <div class="stat-row"><span>Drawdown 60D</span> <strong class="text-danger">-3.10%</strong></div>
+                <div class="stat-row"><span>Volume Z</span> <strong>0.5</strong></div>
+                <div class="stat-footer text-muted">Normal Risk Profile</div>
+            </div>
+
+            <div class="card stat-card">
+                <h3>Alerts</h3>
+                <div class="alerts-list">
+                    <div class="chip">OVERSOLD</div>
+                    <p class="alert-desc text-muted">RSI dropped below 30 threshold during recent pullback.</p>
                 </div>
             </div>
-        </main>
+        </div>
 
-        <footer>
-            <p>&copy; 2026 Market Lab Web. All rights reserved.</p>
-        </footer>
-    </div>
-    <script src="/static/app.js"></script>
+        <!-- Rule Output Panel -->
+        <div class="card panel-rules mt-4">
+            <h2>Rule Output <span class="system-status status-buy">BUY</span></h2>
+            <div class="rules-grid">
+                <div class="rules-col">
+                    <h4 class="text-success">Entry Conditions</h4>
+                    <ul class="rule-list">
+                        <li><span class="check">✓</span> Closing price > SMA 50</li>
+                        <li><span class="check">✓</span> SMA 50 > SMA 200</li>
+                        <li><span class="check">✓</span> RSI(14) < 75 (Not overheated)</li>
+                    </ul>
+                </div>
+                <div class="rules-col">
+                    <h4 class="text-danger">Exit Conditions</h4>
+                    <ul class="rule-list">
+                        <li><span class="cross">✗</span> Drawdown > 15% from local high</li>
+                        <li><span class="cross">✗</span> Closing price < SMA 50</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- JSON Debug Panel -->
+        <details class="debug-panel mt-4">
+            <summary>Raw JSON Payload (Developer/Debug)</summary>
+            <pre><code>{
+  "symbol": "AAPL",
+  "name": "Apple Inc.",
+  "final_score": 89.4,
+  "trend_state": "UP",
+  "indicators": {
+    "sma_20": 148.2,
+    "sma_50": 142.1,
+    "sma_200": 135.5,
+    "rsi_14": 54.2
+  },
+  "alerts": ["OVERSOLD"]
+}</code></pre>
+        </details>
+    </main>
 </body>
 
 </html>

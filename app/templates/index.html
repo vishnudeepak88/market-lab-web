@@ -4,60 +4,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ app_name }} - Home</title>
+    <title>Market Lab - Dashboard</title>
     <link rel="stylesheet" href="/static/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="landing-page">
-    <div class="container container-landing">
-        <header class="hero">
-            <h1 class="gradient-text">{{ app_name }}</h1>
-            <p class="subtitle">Advanced Quantitative Market Analytics</p>
-            <div class="mode-badge {% if 'Demo' in mode %}demo-mode{% else %}prod-mode{% endif %}">
-                System Mode: {{ mode }}
+<body>
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="brand">Market Lab</div>
+            <div class="nav-timestamp">Updated: 2026-03-01 13:50 UTC</div>
+            <div class="nav-links">
+                <a href="/" class="active">Dashboard</a>
+                <a href="#">Docs</a>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <main>
-            <section class="links-section">
-                <div class="links-grid links-grid-landing">
-                    <a href="/dashboard" class="link-card highlight glass">
-                        <div class="card-icon">📈</div>
-                        <h3>Market Dashboard</h3>
-                        <p>Real-time leaderboard, strategy scores, and trend analysis.</p>
-                    </a>
-                    <a href="/docs" class="link-card glass">
-                        <div class="card-icon">⚙️</div>
-                        <h3>Developer API</h3>
-                        <p>RESTful JSON endpoints powered by FastAPI.</p>
-                    </a>
-                    <a href="/healthz" class="link-card glass">
-                        <div class="card-icon">🩺</div>
-                        <h3>System Health</h3>
-                        <p>Check the live status of the deployment.</p>
-                    </a>
+    <main class="container">
+        <div class="dash-header">
+            <h1>Leaderboard</h1>
+
+            <div class="dash-controls">
+                <div class="search-box">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="ticker-search" placeholder="Search ticker or company...">
                 </div>
-            </section>
 
-            <section class="info-card glass mt-4">
-                <h2>About the Scoring Model</h2>
-                <p>Market Lab uses configurable weights to assess each asset:</p>
-                <div class="score-breakdown">
-                    <div class="score-item"><span class="label">Momentum</span> (Ret 20d & 60d)</div>
-                    <div class="score-item"><span class="label">Trend</span> (SMA 50 vs 200)</div>
-                    <div class="score-item"><span class="label">Risk</span> (Vol 20d + Drawdown)</div>
-                    <div class="score-item"><span class="label">Liquidity</span> (Vol Z-Score)</div>
+                <div class="filters-row">
+                    <select id="trend-filter" class="filter-select">
+                        <option value="ALL">All Trends</option>
+                        <option value="UP">Uptrend</option>
+                        <option value="DOWN">Downtrend</option>
+                        <option value="SIDEWAYS">Sideways</option>
+                    </select>
+                    <select id="region-filter" class="filter-select">
+                        <option value="ALL">All Regions</option>
+                        <option value="US">US Markets</option>
+                        <option value="EU">European Markets</option>
+                    </select>
+                    <input type="number" id="min-score" class="filter-input" placeholder="Min Score (e.g. 70)" min="0"
+                        max="100">
                 </div>
-                <p class="disclaimer"><em>Note: This is an educational tool. There are zero predictive claims made by
-                        this platform.</em></p>
-            </section>
-        </main>
+            </div>
+        </div>
 
-        <footer>
-            <p>&copy; 2026 Market Lab Web. All rights reserved.</p>
-        </footer>
-    </div>
+        <div class="table-container">
+            <div class="table-header">
+                <div class="col-ticker">Symbol</div>
+                <div class="col-score">Score</div>
+                <div class="col-trend">Trend</div>
+                <div class="col-ret">20D Return</div>
+                <div class="col-rsi">RSI(14)</div>
+                <div class="col-vol">Vol(20d)</div>
+                <div class="col-alerts">Alerts</div>
+            </div>
+
+            <div id="leaderboard-body" class="table-body">
+                <!-- Skeleton Loading State (hidden by default) -->
+                <div id="loading-skeleton" style="display: none;">
+                    <div class="table-row skeleton"></div>
+                    <div class="table-row skeleton"></div>
+                    <div class="table-row skeleton"></div>
+                </div>
+
+                <!-- Empty State (hidden by default) -->
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <p>No results match your filters</p>
+                </div>
+
+                <!-- Realistic Placeholder Rows -->
+                <a href="/ticker/AAPL" class="table-row">
+                    <div class="col-ticker">
+                        <span class="ticker-sym">AAPL</span>
+                        <span class="ticker-name">Apple Inc.</span>
+                    </div>
+                    <div class="col-score">
+                        <span class="score-value accent">89.4</span>
+                    </div>
+                    <div class="col-trend">
+                        <span class="badge badge-up">UP</span>
+                    </div>
+                    <div class="col-ret text-success">+4.20%</div>
+                    <div class="col-rsi">
+                        <span class="rsi-val text-muted">54.2</span>
+                        <span class="pill pill-normal">NORMAL</span>
+                    </div>
+                    <div class="col-vol text-muted">1.25%</div>
+                    <div class="col-alerts">
+                        <span class="chip">OVERSOLD</span>
+                    </div>
+                </a>
+
+                <a href="/ticker/TSLA" class="table-row">
+                    <div class="col-ticker">
+                        <span class="ticker-sym">TSLA</span>
+                        <span class="ticker-name">Tesla, Inc.</span>
+                    </div>
+                    <div class="col-score">
+                        <span class="score-value">72.1</span>
+                    </div>
+                    <div class="col-trend">
+                        <span class="badge badge-sideways">SIDE</span>
+                    </div>
+                    <div class="col-ret text-danger">-2.10%</div>
+                    <div class="col-rsi">
+                        <span class="rsi-val text-warning">78.5</span>
+                        <span class="pill pill-overheated">OVERHEATED</span>
+                    </div>
+                    <div class="col-vol text-muted">3.40%</div>
+                    <div class="col-alerts">
+                        <span class="chip chip-warn">VOL_SPIKE</span>
+                        <span class="chip chip-danger">DRAWDOWN_WARN</span>
+                    </div>
+                </a>
+
+                <a href="/ticker/MSFT" class="table-row">
+                    <div class="col-ticker">
+                        <span class="ticker-sym">MSFT</span>
+                        <span class="ticker-name">Microsoft Corp.</span>
+                    </div>
+                    <div class="col-score">
+                        <span class="score-value accent">92.8</span>
+                    </div>
+                    <div class="col-trend">
+                        <span class="badge badge-up">UP</span>
+                    </div>
+                    <div class="col-ret text-success">+6.80%</div>
+                    <div class="col-rsi">
+                        <span class="rsi-val text-success">22.1</span>
+                        <span class="pill pill-oversold">OVERSOLD</span>
+                    </div>
+                    <div class="col-vol text-muted">1.10%</div>
+                    <div class="col-alerts">
+                        <span class="text-muted">-</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/app.js"></script>
 </body>
 
 </html>

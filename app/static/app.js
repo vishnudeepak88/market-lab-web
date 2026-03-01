@@ -1,54 +1,60 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Table row clicking
-    const rows = document.querySelectorAll('.clickable-row');
-    rows.forEach(row => {
-        row.addEventListener('click', () => {
-            const href = row.getAttribute('data-href');
-            if (href) {
-                window.location.href = href;
-            }
-        });
-    });
-
-    // Search functionality
+    // Basic search filtering for table view elements
     const searchInput = document.getElementById('ticker-search');
-    const searchBtn = document.getElementById('search-btn');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('.table-row');
+            let hasResults = false;
 
-    function executeSearch() {
-        const val = searchInput.value.trim().toUpperCase();
-        if (val) {
-            window.location.href = `/ticker/${val}`;
-        }
-    }
+            rows.forEach(row => {
+                if (row.classList.contains('skeleton')) return; // Ignore skeletons
 
-    if (searchInput && searchBtn) {
-        searchBtn.addEventListener('click', executeSearch);
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                executeSearch();
+                const ticker = row.querySelector('.ticker-sym')?.textContent.toLowerCase() || '';
+                const name = row.querySelector('.ticker-name')?.textContent.toLowerCase() || '';
+
+                if (ticker.includes(term) || name.includes(term)) {
+                    row.style.display = 'grid';
+                    hasResults = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Toggle empty state
+            const emptyState = document.getElementById('empty-state');
+            if (emptyState) {
+                emptyState.style.display = hasResults ? 'none' : 'block';
             }
         });
     }
 
-    // Trend filter functionality
-    const trendFilter = document.getElementById('trend-filter');
-    if (trendFilter) {
-        // Read URL params to set initial state
-        const urlParams = new URLSearchParams(window.location.search);
-        const currentTrend = urlParams.get('trend');
-        if (currentTrend) {
-            trendFilter.value = currentTrend;
-        }
+    // Basic dropdown filtering (Trend)
+    const trendSelect = document.getElementById('trend-filter');
+    if (trendSelect) {
+        trendSelect.addEventListener('change', (e) => {
+            const filterValue = e.target.value;
+            const rows = document.querySelectorAll('.table-row');
+            let hasResults = false;
 
-        trendFilter.addEventListener('change', () => {
-            const selected = trendFilter.value;
-            const newUrl = new URL(window.location.href);
-            if (selected === 'ALL') {
-                newUrl.searchParams.delete('trend');
-            } else {
-                newUrl.searchParams.set('trend', selected);
+            rows.forEach(row => {
+                if (row.classList.contains('skeleton')) return;
+
+                const trendBadge = row.querySelector('.badge')?.textContent || 'ALL';
+
+                // Show if ALL is selected, or if badge text matches selected option
+                if (filterValue === 'ALL' || trendBadge === filterValue) {
+                    row.style.display = 'grid';
+                    hasResults = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            const emptyState = document.getElementById('empty-state');
+            if (emptyState) {
+                emptyState.style.display = hasResults ? 'none' : 'block';
             }
-            window.location.href = newUrl.toString();
         });
     }
 });
